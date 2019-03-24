@@ -71,8 +71,6 @@ public class MainScreen extends Screen implements Window.HasWorkArea, Window.Has
     @Inject
     protected ScreenTools screenTools;
 
-    protected Component menu;
-
     @Subscribe
     protected void onInit(InitEvent event) {
         initLogoImage(logoImage);
@@ -119,8 +117,7 @@ public class MainScreen extends Screen implements Window.HasWorkArea, Window.Has
     }
 
     protected void initMenu() {
-        menu = getWindow().getComponent(SIDE_MENU);
-
+        Component menu = getWindow().getComponent(SIDE_MENU);
         if (menu == null) {
             menu = getWindow().getComponent(APP_MENU);
             if (menu != null && webConfig.getUseInverseHeader()) {
@@ -129,6 +126,10 @@ public class MainScreen extends Screen implements Window.HasWorkArea, Window.Has
                     titleBar.setStyleName(INVERSE_MENU_STYLENAME);
                 }
             }
+        }
+
+        if (menu instanceof Component.Focusable) {
+            ((Component.Focusable) menu).focus();
         }
     }
 
