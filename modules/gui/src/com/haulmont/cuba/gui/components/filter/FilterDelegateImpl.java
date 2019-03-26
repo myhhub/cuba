@@ -511,8 +511,7 @@ public class FilterDelegateImpl implements FilterDelegate {
             setFilterEntity(defaultFilter);
         } catch (Exception e) {
             log.error("Exception on loading default filter '{}'", defaultFilter.getName(), e);
-            Notifications notifications = ComponentsHelper.getScreenContext(filter).getNotifications();
-            notifications.create(Notifications.NotificationType.ERROR)
+            getNotifications().create(Notifications.NotificationType.ERROR)
                     .withCaption(messages.formatMainMessage("filter.errorLoadingDefaultFilter"))
                     .withDescription(defaultFilter.getName())
                     .show();
@@ -570,8 +569,7 @@ public class FilterDelegateImpl implements FilterDelegate {
             if (!suitableCondition(condition)) {
                 String message = String.format(getMainMessage("filter.inappropriate.filter"),
                         filterEntity.getName(), adapter.getMetaClass().getName());
-                Notifications notifications = ComponentsHelper.getScreenContext(filter).getNotifications();
-                notifications.create(Notifications.NotificationType.HUMANIZED)
+                getNotifications().create(Notifications.NotificationType.HUMANIZED)
                         .withCaption(message)
                         .show();
                 setFilterEntity(adHocFilter);
@@ -1298,8 +1296,7 @@ public class FilterDelegateImpl implements FilterDelegate {
                 adapter.unpinAllQuery();
                 this.layout.remove(appliedFiltersLayout);
             } else {
-                Dialogs dialogs = ComponentsHelper.getScreenContext(filter).getDialogs();
-                dialogs.createOptionDialog(Dialogs.MessageType.WARNING)
+                getDialogs().createOptionDialog(Dialogs.MessageType.WARNING)
                         .withCaption(messages.getMainMessage("removeApplied.title"))
                         .withMessage(messages.getMainMessage("removeApplied.message"))
                         .withActions(new DialogAction(Type.YES).withHandler(event -> {
@@ -1537,13 +1534,12 @@ public class FilterDelegateImpl implements FilterDelegate {
         if (beforeFilterAppliedHandler != null) {
             if (!beforeFilterAppliedHandler.beforeFilterApplied()) return false;
         }
-        Notifications notifications = ComponentsHelper.getScreenContext(filter).getNotifications();
         if (clientConfig.getGenericFilterChecking()) {
             if (filterEntity != null && conditions.getRoots().size() > 0) {
                 boolean haveCorrectCondition = hasCorrectCondition();
                 if (!haveCorrectCondition) {
                     if (!options.isNotifyInvalidConditions()) {
-                        notifications.create(Notifications.NotificationType.HUMANIZED)
+                        getNotifications().create(Notifications.NotificationType.HUMANIZED)
                                 .withCaption(messages.getMainMessage("filter.emptyConditions"))
                                 .show();
                     }
@@ -1562,7 +1558,7 @@ public class FilterDelegateImpl implements FilterDelegate {
             boolean haveRequiredConditions = haveFilledRequiredConditions();
             if (!haveRequiredConditions) {
                 if (!options.isNotifyInvalidConditions()) {
-                    notifications.create(Notifications.NotificationType.HUMANIZED)
+                    getNotifications().create(Notifications.NotificationType.HUMANIZED)
                             .withCaption(messages.getMainMessage("filter.emptyRequiredConditions"))
                             .show();
                 }
@@ -1636,8 +1632,7 @@ public class FilterDelegateImpl implements FilterDelegate {
 
         String searchTerm = ftsSearchCriteriaField.getValue();
         if (Strings.isNullOrEmpty(searchTerm) && clientConfig.getGenericFilterChecking()) {
-            Notifications notifications = ComponentsHelper.getScreenContext(filter).getNotifications();
-            notifications.create(Notifications.NotificationType.TRAY)
+            getNotifications().create(Notifications.NotificationType.TRAY)
                     .withCaption(getMainMessage("filter.fillSearchCondition"))
                     .show();
             return;
@@ -2470,8 +2465,7 @@ public class FilterDelegateImpl implements FilterDelegate {
         @Override
         public void actionPerform(Component component) {
             if (filterEntity == adHocFilter) return;
-            Dialogs dialogs = ComponentsHelper.getScreenContext(filter).getDialogs();
-            dialogs.createOptionDialog(Dialogs.MessageType.CONFIRMATION)
+            getDialogs().createOptionDialog(Dialogs.MessageType.CONFIRMATION)
                     .withCaption(getMainMessage("filter.removeDialogTitle"))
                     .withMessage(getMainMessage("filter.removeDialogMessage"))
                     .withActions(new DialogAction(Type.YES).withHandler(event -> {
@@ -2533,12 +2527,21 @@ public class FilterDelegateImpl implements FilterDelegate {
         updateWindowCaption();
     }
 
+    @Nullable
     protected WindowManager getWindowManager() {
         Window window = ComponentsHelper.getWindow(filter);
         if (window != null) {
             return window.getWindowManager();
         }
         return null;
+    }
+
+    protected Notifications getNotifications() {
+        return ComponentsHelper.getScreenContext(filter).getNotifications();
+    }
+
+    protected Dialogs getDialogs() {
+        return ComponentsHelper.getScreenContext(filter).getDialogs();
     }
 
     protected class PinAppliedAction extends AbstractAction {
