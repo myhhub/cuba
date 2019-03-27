@@ -71,36 +71,17 @@ public class MainScreen extends Screen implements Window.HasWorkArea, Window.Has
     @Inject
     protected ScreenTools screenTools;
 
-    @Subscribe
-    protected void onInit(InitEvent event) {
+    public MainScreen() {
+        addInitListener(this::initMainScreen);
+    }
+
+    protected void initMainScreen(@SuppressWarnings("unused") InitEvent e) {
         initLogoImage(logoImage);
         initLayoutAnalyzerContextMenu(logoImage);
         initFtsField(ftsField);
 
         initMenu();
-    }
 
-    @Order(Events.LOWEST_PLATFORM_PRECEDENCE - 100)
-    @EventListener
-    protected void onUserSubstitutionsChange(UserSubstitutionsChangedEvent event) {
-        UserIndicator userIndicator = getUserIndicator();
-        if (userIndicator != null) {
-            userIndicator.refreshUserSubstitutions();
-        }
-    }
-
-    @Order(Events.LOWEST_PLATFORM_PRECEDENCE - 100)
-    @EventListener
-    protected void onUserRemove(UserRemovedEvent event) {
-        UserIndicator userIndicator = getUserIndicator();
-        if (userIndicator != null) {
-            userIndicator.refreshUserSubstitutions();
-        }
-    }
-
-    @Subscribe
-    protected void onAfterShow(AfterShowEvent event) {
-        screenTools.openDefaultScreen(screens);
     }
 
     protected void initLogoImage(Image logoImage) {
@@ -108,6 +89,12 @@ public class MainScreen extends Screen implements Window.HasWorkArea, Window.Has
         if (StringUtils.isNotBlank(logoImagePath) && !"application.logoImage".equals(logoImagePath)) {
             logoImage.setSource(ThemeResource.class).setPath(logoImagePath);
         }
+    }
+
+    protected void initLayoutAnalyzerContextMenu(Component contextMenuTarget) {
+        LayoutAnalyzerContextMenuProvider laContextMenuProvider = getBeanLocator()
+                .get(LayoutAnalyzerContextMenuProvider.NAME);
+        laContextMenuProvider.initContextMenu(getWindow(), contextMenuTarget);
     }
 
     protected void initFtsField(FtsField ftsField) {
@@ -133,10 +120,27 @@ public class MainScreen extends Screen implements Window.HasWorkArea, Window.Has
         }
     }
 
-    protected void initLayoutAnalyzerContextMenu(Component contextMenuTarget) {
-        LayoutAnalyzerContextMenuProvider laContextMenuProvider =
-                getBeanLocator().get(LayoutAnalyzerContextMenuProvider.NAME);
-        laContextMenuProvider.initContextMenu(getWindow(), contextMenuTarget);
+    @Order(Events.LOWEST_PLATFORM_PRECEDENCE - 100)
+    @EventListener
+    protected void onUserSubstitutionsChange(UserSubstitutionsChangedEvent event) {
+        UserIndicator userIndicator = getUserIndicator();
+        if (userIndicator != null) {
+            userIndicator.refreshUserSubstitutions();
+        }
+    }
+
+    @Order(Events.LOWEST_PLATFORM_PRECEDENCE - 100)
+    @EventListener
+    protected void onUserRemove(UserRemovedEvent event) {
+        UserIndicator userIndicator = getUserIndicator();
+        if (userIndicator != null) {
+            userIndicator.refreshUserSubstitutions();
+        }
+    }
+
+    @Subscribe
+    protected void onAfterShow(AfterShowEvent event) {
+        screenTools.openDefaultScreen(screens);
     }
 
     @Nullable
