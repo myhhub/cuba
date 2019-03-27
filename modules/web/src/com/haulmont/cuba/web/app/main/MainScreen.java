@@ -22,9 +22,15 @@ import com.haulmont.cuba.core.global.Messages;
 import com.haulmont.cuba.gui.Route;
 import com.haulmont.cuba.gui.ScreenTools;
 import com.haulmont.cuba.gui.Screens;
-import com.haulmont.cuba.gui.components.*;
+import com.haulmont.cuba.gui.components.Component;
+import com.haulmont.cuba.gui.components.Image;
+import com.haulmont.cuba.gui.components.ThemeResource;
+import com.haulmont.cuba.gui.components.Window;
 import com.haulmont.cuba.gui.components.dev.LayoutAnalyzerContextMenuProvider;
-import com.haulmont.cuba.gui.components.mainwindow.*;
+import com.haulmont.cuba.gui.components.mainwindow.AppMenu;
+import com.haulmont.cuba.gui.components.mainwindow.AppWorkArea;
+import com.haulmont.cuba.gui.components.mainwindow.FtsField;
+import com.haulmont.cuba.gui.components.mainwindow.UserIndicator;
 import com.haulmont.cuba.gui.events.UserRemovedEvent;
 import com.haulmont.cuba.gui.events.UserSubstitutionsChangedEvent;
 import com.haulmont.cuba.gui.screen.Screen;
@@ -39,26 +45,15 @@ import org.springframework.core.annotation.Order;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import static com.haulmont.cuba.gui.ComponentsHelper.walkComponents;
+
 /**
- * Base class for Main screen.
+ * Base class for a controller of application Main screen.
  */
 @Route(path = "main", root = true)
 @UiDescriptor("main-screen.xml")
 @UiController("main")
 public class MainScreen extends Screen implements Window.HasWorkArea, Window.HasUserIndicator {
-
-    @Inject
-    protected AppMenu mainMenu;
-    @Inject
-    protected BoxLayout titleBar;
-    @Inject
-    protected FtsField ftsField;
-    @Inject
-    protected Image logoImage;
-    @Inject
-    protected AppWorkArea workArea;
-    @Inject
-    protected UserIndicator userIndicator;
 
     @Inject
     protected WebConfig webConfig;
@@ -69,23 +64,78 @@ public class MainScreen extends Screen implements Window.HasWorkArea, Window.Has
     @Inject
     protected ScreenTools screenTools;
 
-    @Subscribe
-    protected void onInit(InitEvent event) {
-        mainMenu.focus();
+    protected AppMenu mainMenu;
+    protected FtsField ftsField;
+    protected Image logoImage;
+    protected AppWorkArea workArea;
+    protected UserIndicator userIndicator;
 
-        initLogoImage(logoImage);
+    public MainScreen() {
+        addBeforeShowListener(this::findComponents);
+        addInitListener(this::initComponents);
+    }
+
+    protected void findComponents(@SuppressWarnings("unused") BeforeShowEvent e) {
+        walkComponents(getWindow(), component -> {
+            if (component instanceof AppMenu) {
+                mainMenu = (AppMenu) component;
+            } else if (component instanceof FtsField) {
+                ftsField = ((FtsField) component);
+            } else if (component instanceof Image && "logoImage".equals(component.getId())) {
+                logoImage = ((Image) component);
+            } else if (component instanceof AppWorkArea) {
+                workArea = (AppWorkArea) component;
+            } else if (component instanceof UserIndicator) {
+                userIndicator = (UserIndicator) component;
+            }
+            return false;
+        });
+    }
+
+    protected void initComponents(@SuppressWarnings("unused") InitEvent e) {
+        initLogoImage();
+        initFtsField();
         initLayoutAnalyzerContextMenu(logoImage);
-        initFtsField(ftsField);
 
         if (webConfig.getUseInverseHeader()) {
-            titleBar.setStyleName("c-app-menubar c-inverse-header");
+            Component titleBar = getWindow().getComponent("titleBar");
+            if (titleBar != null) {
+                titleBar.setStyleName("c-app-menubar c-inverse-header");
+            }
+        }
+
+        if (mainMenu != null) {
+            mainMenu.focus();
+        }
+    }
+
+    protected void initLogoImage() {
+        String logoImagePath = messages.getMainMessage("application.logoImage");
+        if (logoImage != null
+                && StringUtils.isNotBlank(logoImagePath)
+                && !"application.logoImage".equals(logoImagePath)) {
+            logoImage.setSource(ThemeResource.class).setPath(logoImagePath);
+        }
+    }
+
+    protected void initFtsField() {
+        if (ftsField != null
+                && !FtsConfigHelper.getEnabled()) {
+            ftsField.setVisible(false);
+        }
+    }
+
+    protected void initLayoutAnalyzerContextMenu(Component contextMenuTarget) {
+        if (contextMenuTarget != null) {
+            LayoutAnalyzerContextMenuProvider laContextMenuProvider =
+                    getBeanLocator().get(LayoutAnalyzerContextMenuProvider.NAME);
+            laContextMenuProvider.initContextMenu(getWindow(), contextMenuTarget);
         }
     }
 
     @Order(Events.LOWEST_PLATFORM_PRECEDENCE - 100)
     @EventListener
     protected void onUserSubstitutionsChange(UserSubstitutionsChangedEvent event) {
-        UserIndicator userIndicator = getUserIndicator();
         if (userIndicator != null) {
             userIndicator.refreshUserSubstitutions();
         }
@@ -94,7 +144,6 @@ public class MainScreen extends Screen implements Window.HasWorkArea, Window.Has
     @Order(Events.LOWEST_PLATFORM_PRECEDENCE - 100)
     @EventListener
     protected void onUserRemove(UserRemovedEvent event) {
-        UserIndicator userIndicator = getUserIndicator();
         if (userIndicator != null) {
             userIndicator.refreshUserSubstitutions();
         }
@@ -103,25 +152,6 @@ public class MainScreen extends Screen implements Window.HasWorkArea, Window.Has
     @Subscribe
     protected void onAfterShow(AfterShowEvent event) {
         screenTools.openDefaultScreen(screens);
-    }
-
-    protected void initLogoImage(Image logoImage) {
-        String logoImagePath = messages.getMainMessage("application.logoImage");
-        if (StringUtils.isNotBlank(logoImagePath) && !"application.logoImage".equals(logoImagePath)) {
-            logoImage.setSource(ThemeResource.class).setPath(logoImagePath);
-        }
-    }
-
-    protected void initFtsField(FtsField ftsField) {
-        if (!FtsConfigHelper.getEnabled()) {
-            ftsField.setVisible(false);
-        }
-    }
-
-    protected void initLayoutAnalyzerContextMenu(Component contextMenuTarget) {
-        LayoutAnalyzerContextMenuProvider laContextMenuProvider =
-                getBeanLocator().get(LayoutAnalyzerContextMenuProvider.NAME);
-        laContextMenuProvider.initContextMenu(getWindow(), contextMenuTarget);
     }
 
     @Nullable

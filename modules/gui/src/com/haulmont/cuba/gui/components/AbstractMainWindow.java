@@ -35,6 +35,8 @@ import org.springframework.core.annotation.Order;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import static com.haulmont.cuba.gui.ComponentsHelper.walkComponents;
+
 /**
  * Legacy base class for a controller of application Main window.
  */
@@ -46,12 +48,29 @@ public class AbstractMainWindow extends AbstractTopLevelWindow
     @Inject
     protected ScreenTools screenTools;
 
-    @Inject
     protected AppWorkArea workArea;
-    @Inject
     protected UserIndicator userIndicator;
-    @Inject
     protected FoldersPane foldersPane;
+
+    public AbstractMainWindow() {
+        addBeforeShowListener(this::findComponents);
+    }
+
+    /**
+     * Binds system UI components.
+     */
+    protected void findComponents(@SuppressWarnings("unused") BeforeShowEvent e) {
+        walkComponents(this, component -> {
+            if (component instanceof AppWorkArea) {
+                workArea = (AppWorkArea) component;
+            } else if (component instanceof UserIndicator) {
+                userIndicator = (UserIndicator) component;
+            } else if (component instanceof FoldersPane) {
+                foldersPane = (FoldersPane) component;
+            }
+            return false;
+        });
+    }
 
     @Override
     @Nullable
@@ -73,13 +92,16 @@ public class AbstractMainWindow extends AbstractTopLevelWindow
 
     protected void initLogoImage(Image logoImage) {
         String logoImagePath = messages.getMainMessage("application.logoImage");
-        if (StringUtils.isNotBlank(logoImagePath) && !"application.logoImage".equals(logoImagePath)) {
+        if (logoImage != null
+                && StringUtils.isNotBlank(logoImagePath)
+                && !"application.logoImage".equals(logoImagePath)) {
             logoImage.setSource(ThemeResource.class).setPath(logoImagePath);
         }
     }
 
     protected void initFtsField(FtsField ftsField) {
-        if (!FtsConfigHelper.getEnabled()) {
+        if (ftsField != null
+                && !FtsConfigHelper.getEnabled()) {
             ftsField.setVisible(false);
         }
     }
