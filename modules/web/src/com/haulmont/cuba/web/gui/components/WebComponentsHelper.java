@@ -332,4 +332,15 @@ public class WebComponentsHelper {
         }
         return null;
     }
+
+    @SuppressWarnings("unchecked")
+    public static void setCompositeComponentRoot(CompositeComponent compositeComponent,
+                                                 com.haulmont.cuba.gui.components.Component root) {
+        compositeComponent.setComposition(root);
+    }
+
+    public static <E> void fireCompositeComponentEvent(CompositeComponent compositeComponent,
+                                                       Class<E> eventType, E event) {
+        compositeComponent.fireEvent(eventType, event);
+    }
 }

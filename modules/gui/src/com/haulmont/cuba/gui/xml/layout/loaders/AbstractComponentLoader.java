@@ -199,7 +199,9 @@ public abstract class AbstractComponentLoader<T extends Component> implements Co
     }
 
     protected boolean isLegacyFrame() {
-        return context.getFrame().getFrameOwner() instanceof LegacyFrame;
+        // FIXME: gg, no frame?
+        return context.getFrame() != null
+                && context.getFrame().getFrameOwner() instanceof LegacyFrame;
     }
 
     protected void loadId(Component component, Element element) {
@@ -460,8 +462,7 @@ public abstract class AbstractComponentLoader<T extends Component> implements Co
     protected void assignFrame(final Component.BelongToFrame component) {
         if (context.getFrame() != null) {
             component.setFrame(context.getFrame());
-        } else
-            throw new GuiDevelopmentException("ComponentLoaderContext.frame is null", context.getFullFrameId());
+        }
     }
 
     protected void loadAction(ActionOwner component, Element element) {

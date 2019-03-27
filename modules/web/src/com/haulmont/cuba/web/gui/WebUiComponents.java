@@ -18,12 +18,18 @@ package com.haulmont.cuba.web.gui;
 
 import com.google.common.reflect.TypeToken;
 import com.haulmont.chile.core.datatypes.DatatypeRegistry;
+import com.haulmont.cuba.core.global.BeanLocator;
 import com.haulmont.cuba.core.global.DevelopmentException;
 import com.haulmont.cuba.gui.UiComponents;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.components.mainwindow.*;
+import com.haulmont.cuba.gui.xml.layout.ComponentLoader;
+import com.haulmont.cuba.gui.xml.layout.CompositeComponentLayoutLoader;
+import com.haulmont.cuba.gui.xml.layout.CompositeComponentTemplateLoader;
+import com.haulmont.cuba.gui.xml.layout.loaders.CompositeComponentLoaderContext;
 import com.haulmont.cuba.web.gui.components.*;
 import com.haulmont.cuba.web.gui.components.mainwindow.*;
+import org.dom4j.Element;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
@@ -44,6 +50,10 @@ public class WebUiComponents implements UiComponents {
     protected ApplicationContext applicationContext;
     @Inject
     protected DatatypeRegistry datatypeRegistry;
+    @Inject
+    protected CompositeComponentTemplateLoader compositeComponentTemplateLoader;
+    @Inject
+    protected BeanLocator beanLocator;
 
     protected Map<String, Class<? extends Component>> classes = new ConcurrentHashMap<>();
     protected Map<Class, String> names = new ConcurrentHashMap<>();
@@ -161,6 +171,7 @@ public class WebUiComponents implements UiComponents {
 
         try {
             Component instance = constructor.newInstance();
+            initCompositeComponent(instance, componentClass);
             autowireContext(instance);
             return (T) instance;
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
@@ -219,6 +230,37 @@ public class WebUiComponents implements UiComponents {
                                 instance.getClass(), e);
             }
         }
+    }
+
+    protected void initCompositeComponent(Component instance, Class<? extends Component> componentClass) {
+        if (!(instance instanceof CompositeComponent)) {
+            return;
+        }
+
+        CompositionTemplate template = componentClass.getAnnotation(CompositionTemplate.class);
+        if (template != null) {
+            Component root = processCompositionTemplate(template.value());
+            CompositeComponent compositeComponent = (CompositeComponent) instance;
+            WebComponentsHelper.setCompositeComponentRoot(compositeComponent, root);
+
+            CompositeComponent.CreateEvent event = new CompositeComponent.CreateEvent(compositeComponent);
+            WebComponentsHelper.fireCompositeComponentEvent(compositeComponent,
+                    CompositeComponent.CreateEvent.class, event);
+        }
+    }
+
+    protected Component processCompositionTemplate(String template) {
+        ComponentLoader.Context context = new CompositeComponentLoaderContext();
+        // TODO: gg, set some useful values
+        /*context.setFullFrameId(windowInfo.getId());
+        context.setCurrentFrameId(windowInfo.getId());
+        context.setFrame(window);*/
+
+        CompositeComponentLayoutLoader layoutLoader =
+                beanLocator.getPrototype(CompositeComponentLayoutLoader.NAME, context);
+
+        Element element = compositeComponentTemplateLoader.load(template);
+        return layoutLoader.createComponent(element);
     }
 
     public void register(String name, Class<? extends Component> componentClass) {
