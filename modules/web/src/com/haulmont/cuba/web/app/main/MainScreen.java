@@ -45,8 +45,6 @@ import org.springframework.core.annotation.Order;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import static com.haulmont.cuba.gui.ComponentsHelper.walkComponents;
-
 /**
  * Base class for a controller of application Main screen.
  */
@@ -64,9 +62,6 @@ public class MainScreen extends Screen implements Window.HasWorkArea, Window.Has
     @Inject
     protected ScreenTools screenTools;
 
-    protected AppMenu mainMenu;
-    protected FtsField ftsField;
-    protected Image logoImage;
     protected AppWorkArea workArea;
     protected UserIndicator userIndicator;
 
@@ -75,42 +70,16 @@ public class MainScreen extends Screen implements Window.HasWorkArea, Window.Has
     }
 
     protected void initComponents(@SuppressWarnings("unused") InitEvent e) {
-        findComponents();
-
         initLogoImage();
         initFtsField();
-        initLayoutAnalyzerContextMenu(logoImage);
-
-        if (webConfig.getUseInverseHeader()) {
-            Component titleBar = getWindow().getComponent("titleBar");
-            if (titleBar != null) {
-                titleBar.setStyleName("c-app-menubar c-inverse-header");
-            }
-        }
-
-        if (mainMenu != null) {
-            mainMenu.focus();
-        }
-    }
-
-    protected void findComponents() {
-        walkComponents(getWindow(), component -> {
-            if (component instanceof AppMenu) {
-                mainMenu = (AppMenu) component;
-            } else if (component instanceof FtsField) {
-                ftsField = ((FtsField) component);
-            } else if (component instanceof Image && "logoImage".equals(component.getId())) {
-                logoImage = ((Image) component);
-            } else if (component instanceof AppWorkArea) {
-                workArea = (AppWorkArea) component;
-            } else if (component instanceof UserIndicator) {
-                userIndicator = (UserIndicator) component;
-            }
-            return false;
-        });
+        initLayoutAnalyzerContextMenu();
+        initMenu();
+        initTitleBar();
     }
 
     protected void initLogoImage() {
+        Image logoImage = (Image) getWindow().getComponent("logoImage");
+
         String logoImagePath = messages.getMainMessage("application.logoImage");
         if (logoImage != null
                 && StringUtils.isNotBlank(logoImagePath)
@@ -120,17 +89,35 @@ public class MainScreen extends Screen implements Window.HasWorkArea, Window.Has
     }
 
     protected void initFtsField() {
+        FtsField ftsField = (FtsField) getWindow().getComponent("ftsField");
         if (ftsField != null
                 && !FtsConfigHelper.getEnabled()) {
             ftsField.setVisible(false);
         }
     }
 
-    protected void initLayoutAnalyzerContextMenu(Component contextMenuTarget) {
-        if (contextMenuTarget != null) {
+    protected void initLayoutAnalyzerContextMenu() {
+        Component logoImage = getWindow().getComponent("logoImage");
+        if (logoImage != null) {
             LayoutAnalyzerContextMenuProvider laContextMenuProvider =
                     getBeanLocator().get(LayoutAnalyzerContextMenuProvider.NAME);
-            laContextMenuProvider.initContextMenu(getWindow(), contextMenuTarget);
+            laContextMenuProvider.initContextMenu(getWindow(), logoImage);
+        }
+    }
+
+    protected void initMenu() {
+        AppMenu menu = (AppMenu) getWindow().getComponent("appMenu");
+        if (menu != null) {
+            menu.focus();
+        }
+    }
+
+    protected void initTitleBar() {
+        if (webConfig.getUseInverseHeader()) {
+            Component titleBar = getWindow().getComponent("titleBar");
+            if (titleBar != null) {
+                titleBar.setStyleName("c-app-menubar c-inverse-header");
+            }
         }
     }
 
