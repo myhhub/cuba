@@ -35,13 +35,13 @@ import org.springframework.core.annotation.Order;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import static com.haulmont.cuba.gui.ComponentsHelper.walkComponents;
-
 /**
  * Legacy base class for a controller of application Main window.
  */
 public class AbstractMainWindow extends AbstractTopLevelWindow
         implements Window.HasWorkArea, Window.HasUserIndicator, Window.HasFoldersPane {
+
+    protected static final String APP_LOGO_IMAGE = "application.logoImage";
 
     @Inject
     protected Screens screens;
@@ -53,55 +53,44 @@ public class AbstractMainWindow extends AbstractTopLevelWindow
     protected FoldersPane foldersPane;
 
     public AbstractMainWindow() {
-        addInitListener(this::findComponents);
+        addInitListener(this::initComponents);
     }
 
-    /**
-     * Binds system UI components.
-     */
-    protected void findComponents(@SuppressWarnings("unused") InitEvent e) {
-        walkComponents(this, component -> {
-            if (component instanceof AppWorkArea) {
-                workArea = (AppWorkArea) component;
-            } else if (component instanceof UserIndicator) {
-                userIndicator = (UserIndicator) component;
-            } else if (component instanceof FoldersPane) {
-                foldersPane = (FoldersPane) component;
-            }
-            return false;
-        });
+    protected void initComponents(@SuppressWarnings("unused") InitEvent e) {
+        workArea = getWorkArea();
+        userIndicator = getUserIndicator();
+        foldersPane = getFoldersPane();
     }
 
     @Override
     @Nullable
     public AppWorkArea getWorkArea() {
-        return workArea;
+        return (AppWorkArea) getComponent("workArea");
     }
 
     @Override
     @Nullable
     public UserIndicator getUserIndicator() {
-        return userIndicator;
+        return (UserIndicator) getComponent("userIndicator");
     }
 
     @Nullable
     @Override
     public FoldersPane getFoldersPane() {
-        return foldersPane;
+        return (FoldersPane) getComponent("foldersPane");
     }
 
     protected void initLogoImage(Image logoImage) {
-        String logoImagePath = messages.getMainMessage("application.logoImage");
+        String logoImagePath = messages.getMainMessage(APP_LOGO_IMAGE);
         if (logoImage != null
                 && StringUtils.isNotBlank(logoImagePath)
-                && !"application.logoImage".equals(logoImagePath)) {
+                && !APP_LOGO_IMAGE.equals(logoImagePath)) {
             logoImage.setSource(ThemeResource.class).setPath(logoImagePath);
         }
     }
 
     protected void initFtsField(FtsField ftsField) {
-        if (ftsField != null
-                && !FtsConfigHelper.getEnabled()) {
+        if (ftsField != null && !FtsConfigHelper.getEnabled()) {
             ftsField.setVisible(false);
         }
     }

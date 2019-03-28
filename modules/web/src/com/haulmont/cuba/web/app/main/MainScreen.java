@@ -53,6 +53,8 @@ import javax.inject.Inject;
 @UiController("main")
 public class MainScreen extends Screen implements Window.HasWorkArea, Window.HasUserIndicator {
 
+    protected static final String APP_LOGO_IMAGE = "application.logoImage";
+
     @Inject
     protected WebConfig webConfig;
     @Inject
@@ -62,9 +64,6 @@ public class MainScreen extends Screen implements Window.HasWorkArea, Window.Has
     @Inject
     protected ScreenTools screenTools;
 
-    protected AppWorkArea workArea;
-    protected UserIndicator userIndicator;
-
     public MainScreen() {
         addInitListener(this::initComponents);
     }
@@ -73,31 +72,30 @@ public class MainScreen extends Screen implements Window.HasWorkArea, Window.Has
         initLogoImage();
         initFtsField();
         initLayoutAnalyzerContextMenu();
-        initMenu();
         initTitleBar();
+        initMenu();
     }
 
     protected void initLogoImage() {
-        Image logoImage = (Image) getWindow().getComponent("logoImage");
+        Image logoImage = getLogoImage();
+        String logoImagePath = messages.getMainMessage(APP_LOGO_IMAGE);
 
-        String logoImagePath = messages.getMainMessage("application.logoImage");
         if (logoImage != null
                 && StringUtils.isNotBlank(logoImagePath)
-                && !"application.logoImage".equals(logoImagePath)) {
+                && !APP_LOGO_IMAGE.equals(logoImagePath)) {
             logoImage.setSource(ThemeResource.class).setPath(logoImagePath);
         }
     }
 
     protected void initFtsField() {
-        FtsField ftsField = (FtsField) getWindow().getComponent("ftsField");
-        if (ftsField != null
-                && !FtsConfigHelper.getEnabled()) {
+        FtsField ftsField = getFtsField();
+        if (ftsField != null && !FtsConfigHelper.getEnabled()) {
             ftsField.setVisible(false);
         }
     }
 
     protected void initLayoutAnalyzerContextMenu() {
-        Component logoImage = getWindow().getComponent("logoImage");
+        Image logoImage = getLogoImage();
         if (logoImage != null) {
             LayoutAnalyzerContextMenuProvider laContextMenuProvider =
                     getBeanLocator().get(LayoutAnalyzerContextMenuProvider.NAME);
@@ -106,7 +104,7 @@ public class MainScreen extends Screen implements Window.HasWorkArea, Window.Has
     }
 
     protected void initMenu() {
-        AppMenu menu = (AppMenu) getWindow().getComponent("appMenu");
+        AppMenu menu = getMenu();
         if (menu != null) {
             menu.focus();
         }
@@ -114,7 +112,7 @@ public class MainScreen extends Screen implements Window.HasWorkArea, Window.Has
 
     protected void initTitleBar() {
         if (webConfig.getUseInverseHeader()) {
-            Component titleBar = getWindow().getComponent("titleBar");
+            Component titleBar = getTitleBar();
             if (titleBar != null) {
                 titleBar.setStyleName("c-app-menubar c-inverse-header");
             }
@@ -124,6 +122,7 @@ public class MainScreen extends Screen implements Window.HasWorkArea, Window.Has
     @Order(Events.LOWEST_PLATFORM_PRECEDENCE - 100)
     @EventListener
     protected void onUserSubstitutionsChange(UserSubstitutionsChangedEvent event) {
+        UserIndicator userIndicator = getUserIndicator();
         if (userIndicator != null) {
             userIndicator.refreshUserSubstitutions();
         }
@@ -132,6 +131,7 @@ public class MainScreen extends Screen implements Window.HasWorkArea, Window.Has
     @Order(Events.LOWEST_PLATFORM_PRECEDENCE - 100)
     @EventListener
     protected void onUserRemove(UserRemovedEvent event) {
+        UserIndicator userIndicator = getUserIndicator();
         if (userIndicator != null) {
             userIndicator.refreshUserSubstitutions();
         }
@@ -145,12 +145,28 @@ public class MainScreen extends Screen implements Window.HasWorkArea, Window.Has
     @Nullable
     @Override
     public AppWorkArea getWorkArea() {
-        return workArea;
+        return (AppWorkArea) getWindow().getComponent("workArea");
     }
 
     @Nullable
     @Override
     public UserIndicator getUserIndicator() {
-        return userIndicator;
+        return (UserIndicator) getWindow().getComponent("userIndicator");
+    }
+
+    protected Image getLogoImage() {
+        return (Image) getWindow().getComponent("logoImage");
+    }
+
+    protected FtsField getFtsField() {
+        return (FtsField) getWindow().getComponent("ftsField");
+    }
+
+    protected AppMenu getMenu() {
+        return (AppMenu) getWindow().getComponent("appMenu");
+    }
+
+    protected Component getTitleBar() {
+        return getWindow().getComponent("titleBar");
     }
 }
