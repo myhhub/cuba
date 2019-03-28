@@ -53,13 +53,13 @@ public class AbstractMainWindow extends AbstractTopLevelWindow
     protected FoldersPane foldersPane;
 
     public AbstractMainWindow() {
-        addBeforeShowListener(this::findComponents);
+        addInitListener(this::findComponents);
     }
 
     /**
      * Binds system UI components.
      */
-    protected void findComponents(@SuppressWarnings("unused") BeforeShowEvent e) {
+    protected void findComponents(@SuppressWarnings("unused") InitEvent e) {
         walkComponents(this, component -> {
             if (component instanceof AppWorkArea) {
                 workArea = (AppWorkArea) component;

@@ -71,28 +71,12 @@ public class MainScreen extends Screen implements Window.HasWorkArea, Window.Has
     protected UserIndicator userIndicator;
 
     public MainScreen() {
-        addBeforeShowListener(this::findComponents);
         addInitListener(this::initComponents);
     }
 
-    protected void findComponents(@SuppressWarnings("unused") BeforeShowEvent e) {
-        walkComponents(getWindow(), component -> {
-            if (component instanceof AppMenu) {
-                mainMenu = (AppMenu) component;
-            } else if (component instanceof FtsField) {
-                ftsField = ((FtsField) component);
-            } else if (component instanceof Image && "logoImage".equals(component.getId())) {
-                logoImage = ((Image) component);
-            } else if (component instanceof AppWorkArea) {
-                workArea = (AppWorkArea) component;
-            } else if (component instanceof UserIndicator) {
-                userIndicator = (UserIndicator) component;
-            }
-            return false;
-        });
-    }
-
     protected void initComponents(@SuppressWarnings("unused") InitEvent e) {
+        findComponents();
+
         initLogoImage();
         initFtsField();
         initLayoutAnalyzerContextMenu(logoImage);
@@ -107,6 +91,23 @@ public class MainScreen extends Screen implements Window.HasWorkArea, Window.Has
         if (mainMenu != null) {
             mainMenu.focus();
         }
+    }
+
+    protected void findComponents() {
+        walkComponents(getWindow(), component -> {
+            if (component instanceof AppMenu) {
+                mainMenu = (AppMenu) component;
+            } else if (component instanceof FtsField) {
+                ftsField = ((FtsField) component);
+            } else if (component instanceof Image && "logoImage".equals(component.getId())) {
+                logoImage = ((Image) component);
+            } else if (component instanceof AppWorkArea) {
+                workArea = (AppWorkArea) component;
+            } else if (component instanceof UserIndicator) {
+                userIndicator = (UserIndicator) component;
+            }
+            return false;
+        });
     }
 
     protected void initLogoImage() {
