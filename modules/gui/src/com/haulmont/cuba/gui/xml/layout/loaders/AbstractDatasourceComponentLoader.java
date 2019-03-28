@@ -33,15 +33,15 @@ public abstract class AbstractDatasourceComponentLoader<T extends DatasourceComp
             }
             Datasource ds = context.getDsContext().get(datasource);
             if (ds == null) {
-                throw new GuiDevelopmentException(String.format("Datasource '%s' is not defined", datasource),
-                        getContext().getFullFrameId(), "Component ID", component.getId());
+                throw createGuiDevelopmentException(String.format("Datasource '%s' is not defined", datasource),
+                        getContext(), true, "Component ID", component.getId());
             }
             String property = element.attributeValue("property");
             if (StringUtils.isEmpty(property)) {
-                throw new GuiDevelopmentException(
+                throw createGuiDevelopmentException(
                         String.format("Can't set datasource '%s' for component '%s' because 'property' " +
                                 "attribute is not defined", datasource, component.getId()),
-                        context.getFullFrameId());
+                        context, true);
             }
 
             component.setDatasource(ds, property);

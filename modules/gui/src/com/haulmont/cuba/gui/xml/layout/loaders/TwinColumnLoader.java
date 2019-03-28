@@ -16,7 +16,6 @@
  */
 package com.haulmont.cuba.gui.xml.layout.loaders;
 
-import com.haulmont.cuba.gui.GuiDevelopmentException;
 import com.haulmont.cuba.gui.components.CaptionMode;
 import com.haulmont.cuba.gui.components.DatasourceComponent;
 import com.haulmont.cuba.gui.components.TwinColumn;
@@ -95,7 +94,7 @@ public class TwinColumnLoader extends AbstractFieldLoader<TwinColumn> {
             ScreenData screenData = UiControllerUtils.getScreenData(frameOwner);
             InstanceContainer container = screenData.getContainer(containerId);
             if (!(container instanceof CollectionContainer)) {
-                throw new GuiDevelopmentException("Not a CollectionContainer: " + containerId, context.getCurrentFrameId());
+                throw createGuiDevelopmentException("Not a CollectionContainer: " + containerId, context, false);
             }
             //noinspection unchecked
             component.setOptions(new ContainerOptions((CollectionContainer) container));

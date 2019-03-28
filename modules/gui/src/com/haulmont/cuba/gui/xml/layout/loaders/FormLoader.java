@@ -24,7 +24,6 @@ import com.haulmont.chile.core.model.MetaPropertyPath;
 import com.haulmont.cuba.core.app.dynamicattributes.DynamicAttributesUtils;
 import com.haulmont.cuba.core.entity.CategoryAttribute;
 import com.haulmont.cuba.core.global.*;
-import com.haulmont.cuba.gui.GuiDevelopmentException;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.components.data.HasValueSource;
 import com.haulmont.cuba.gui.components.data.ValueSourceProvider;
@@ -109,8 +108,8 @@ public class FormLoader extends AbstractComponentLoader<Form> {
                 Map<String, Object> params = Strings.isNullOrEmpty(fieldGroupId)
                         ? Collections.emptyMap()
                         : ParamsMap.of("Form ID", fieldGroupId);
-                throw new GuiDevelopmentException("Form component elements have to be placed within its column.",
-                        context.getFullFrameId(), params);
+                throw createGuiDevelopmentException("Form component elements have to be placed within its column.",
+                        context, true, params);
             }
 
             resultComponent.setColumns(columnElements.size());

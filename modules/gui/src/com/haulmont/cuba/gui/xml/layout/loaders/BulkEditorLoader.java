@@ -19,7 +19,6 @@ package com.haulmont.cuba.gui.xml.layout.loaders;
 
 import com.google.common.base.Splitter;
 import com.haulmont.cuba.core.global.UserSessionSource;
-import com.haulmont.cuba.gui.GuiDevelopmentException;
 import com.haulmont.cuba.gui.WindowManager;
 import com.haulmont.cuba.gui.components.BulkEditor;
 import com.haulmont.cuba.gui.components.Component;
@@ -104,8 +103,8 @@ public class BulkEditorLoader extends AbstractComponentLoader<BulkEditor> {
         String includeProperties = element.attributeValue("includeProperties");
 
         if (StringUtils.isNotBlank(exclude) && StringUtils.isNotBlank(includeProperties)) {
-            throw new GuiDevelopmentException("BulkEditor cannot define simultaneously exclude and includeProperties attributes",
-                    getContext().getCurrentFrameId());
+            throw createGuiDevelopmentException("BulkEditor cannot define simultaneously exclude and includeProperties attributes",
+                    getContext(), false);
         }
 
         if (StringUtils.isNotBlank(exclude)) {
@@ -120,8 +119,8 @@ public class BulkEditorLoader extends AbstractComponentLoader<BulkEditor> {
 
         String listComponent = element.attributeValue("for");
         if (StringUtils.isEmpty(listComponent)) {
-            throw new GuiDevelopmentException("'for' attribute of bulk editor is not specified",
-                    context.getFullFrameId(), "componentId", resultComponent.getId());
+            throw createGuiDevelopmentException("'for' attribute of bulk editor is not specified",
+                    context, true, "componentId", resultComponent.getId());
         }
 
         String loadDynamicAttributes = element.attributeValue("loadDynamicAttributes");
@@ -138,8 +137,8 @@ public class BulkEditorLoader extends AbstractComponentLoader<BulkEditor> {
             if (resultComponent.getListComponent() == null) {
                 Component bindComponent = resultComponent.getFrame().getComponent(listComponent);
                 if (!(bindComponent instanceof ListComponent)) {
-                    throw new GuiDevelopmentException("Specify 'for' attribute: id of table or tree",
-                            context.getFullFrameId(), "componentId", resultComponent.getId());
+                    throw createGuiDevelopmentException("Specify 'for' attribute: id of table or tree",
+                            context, true, "componentId", resultComponent.getId());
                 }
 
                 resultComponent.setListComponent((ListComponent) bindComponent);

@@ -59,7 +59,7 @@ public class GroupTableLoader extends AbstractTableLoader<GroupTable> {
             for (Table.Column column : columns) {
                 if (column.isCollapsed()) {
                     String msg = String.format("Can't group by collapsed column: %s", column.getId());
-                    throw new GuiDevelopmentException(msg, context.getFullFrameId());
+                    throw createGuiDevelopmentException(msg, context, true);
                 }
 
                 if (column.isGroupAllowed()) {

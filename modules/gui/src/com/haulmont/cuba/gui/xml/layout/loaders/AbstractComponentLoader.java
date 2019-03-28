@@ -871,7 +871,7 @@ public abstract class AbstractComponentLoader<T extends Component> implements Co
             final String className = formatterElement.attributeValue("class");
 
             if (StringUtils.isEmpty(className)) {
-                throw new GuiDevelopmentException("Formatter's attribute 'class' is not specified", context.getCurrentFrameId());
+                throw createGuiDevelopmentException("Formatter's attribute 'class' is not specified", context, false);
             }
 
             Class<?> aClass = getScripting().loadClass(className);

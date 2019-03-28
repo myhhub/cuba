@@ -93,6 +93,7 @@ public class CompositeComponentLayoutLoader {
 
         Class<? extends ComponentLoader> loaderClass = config.getLoader(element.getName());
         if (loaderClass == null) {
+            // TODO: gg, replace with template and component class
             throw new GuiDevelopmentException("Unknown component: " + element.getName(), context.getFullFrameId());
         }
 
@@ -106,12 +107,14 @@ public class CompositeComponentLayoutLoader {
         try {
             constructor = loaderClass.getConstructor();
         } catch (NoSuchMethodException e) {
+            // TODO: gg, replace with template and component class
             throw new GuiDevelopmentException("Unable to get constructor for loader: " + e, context.getFullFrameId());
         }
 
         try {
             loader = constructor.newInstance();
         } catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
+            // TODO: gg, replace with template and component class
             throw new GuiDevelopmentException("Loader instantiation error: " + e, context.getFullFrameId());
         }
 

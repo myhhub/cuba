@@ -16,7 +16,6 @@
  */
 package com.haulmont.cuba.gui.xml.layout.loaders;
 
-import com.haulmont.cuba.gui.GuiDevelopmentException;
 import com.haulmont.cuba.gui.components.Component;
 import com.haulmont.cuba.gui.components.GridLayout;
 import com.haulmont.cuba.gui.xml.layout.ComponentLoader;
@@ -38,14 +37,14 @@ public class GridLayoutLoader extends ContainerLoader<GridLayout> {
 
         Element columnsElement = element.element("columns");
         if (columnsElement == null) {
-            throw new GuiDevelopmentException("'grid' element must contain 'columns' element",
-                    context.getFullFrameId(), "Grid ID", resultComponent.getId());
+            throw createGuiDevelopmentException("'grid' element must contain 'columns' element",
+                    context, true, "Grid ID", resultComponent.getId());
         }
 
         Element rowsElement = element.element("rows");
         if (rowsElement == null) {
-            throw new GuiDevelopmentException("'grid' element must contain 'rows' element",
-                    context.getFullFrameId(), "Grid ID", resultComponent.getId());
+            throw createGuiDevelopmentException("'grid' element must contain 'rows' element",
+                    context, true, "Grid ID", resultComponent.getId());
         }
 
         int columnCount;
@@ -54,8 +53,8 @@ public class GridLayoutLoader extends ContainerLoader<GridLayout> {
             try {
                 columnCount = Integer.parseInt(columnsElement.attributeValue("count"));
             } catch (NumberFormatException e) {
-                throw new GuiDevelopmentException("'grid' element must contain either a set of 'column' elements or a 'count' attribute",
-                        context.getFullFrameId(), "Grid ID", resultComponent.getId());
+                throw createGuiDevelopmentException("'grid' element must contain either a set of 'column' elements or a 'count' attribute",
+                        context, true, "Grid ID", resultComponent.getId());
             }
             resultComponent.setColumns(columnCount);
             for (int i = 0; i < columnCount; i++) {
@@ -64,8 +63,8 @@ public class GridLayoutLoader extends ContainerLoader<GridLayout> {
         } else {
             String countAttr =  columnsElement.attributeValue("count");
             if (StringUtils.isNotEmpty(countAttr)) {
-                throw new GuiDevelopmentException("'grid' element can't contain a set of 'column' elements and a 'count' attribute",
-                        context.getFullFrameId(), "Grid ID", resultComponent.getId());
+                throw createGuiDevelopmentException("'grid' element can't contain a set of 'column' elements and a 'count' attribute",
+                        context, true, "Grid ID", resultComponent.getId());
             }
             columnCount = columnElements.size();
             resultComponent.setColumns(columnCount);
@@ -172,7 +171,7 @@ public class GridLayoutLoader extends ContainerLoader<GridLayout> {
                 } else {
                     params.put("Row Index", row);
                 }
-                throw new GuiDevelopmentException("Grid column count is less than number of components in grid row", context.getFullFrameId(), params);
+                throw createGuiDevelopmentException("Grid column count is less than number of components in grid row", context, true, params);
             }
             while (spanMatrix[col][row]) {
                 col++;
@@ -187,8 +186,8 @@ public class GridLayoutLoader extends ContainerLoader<GridLayout> {
                 if (StringUtils.isNotEmpty(colspan)) {
                     cSpan = Integer.parseInt(colspan);
                     if (cSpan < 1) {
-                        throw new GuiDevelopmentException("GridLayout colspan can not be less than 1",
-                                context.getFullFrameId(), "colspan", cSpan);
+                        throw createGuiDevelopmentException("GridLayout colspan can not be less than 1",
+                                context, true, "colspan", cSpan);
                     }
                     if (cSpan == 1) {
                         LoggerFactory.getLogger(GridLayoutLoader.class).warn("Do not use colspan=\"1\", it will have no effect");
@@ -198,8 +197,8 @@ public class GridLayoutLoader extends ContainerLoader<GridLayout> {
                 if (StringUtils.isNotEmpty(rowspan)) {
                     rSpan = Integer.parseInt(rowspan);
                     if (rSpan < 1) {
-                        throw new GuiDevelopmentException("GridLayout rowspan can not be less than 1",
-                                context.getFullFrameId(), "rowspan", rSpan);
+                        throw createGuiDevelopmentException("GridLayout rowspan can not be less than 1",
+                                context, true, "rowspan", rSpan);
                     }
                     if (rSpan == 1) {
                         LoggerFactory.getLogger(GridLayoutLoader.class).warn("Do not use rowspan=\"1\", it will have no effect");
@@ -226,8 +225,8 @@ public class GridLayoutLoader extends ContainerLoader<GridLayout> {
         for (int i = col; i < (col + colspan); i++) {
             for (int j = row; j < (row + rowspan); j++) {
                 if (spanMatrix[i][j]) {
-                    throw new GuiDevelopmentException("Grid layout prohibits component overlapping",
-                            context.getFullFrameId());
+                    throw createGuiDevelopmentException("Grid layout prohibits component overlapping",
+                            context, true);
                 }
 
                 spanMatrix[i][j] = true;

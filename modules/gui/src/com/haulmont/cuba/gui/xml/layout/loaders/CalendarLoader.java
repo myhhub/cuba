@@ -17,7 +17,6 @@
 package com.haulmont.cuba.gui.xml.layout.loaders;
 
 import com.google.common.base.Strings;
-import com.haulmont.cuba.gui.GuiDevelopmentException;
 import com.haulmont.cuba.gui.components.Calendar;
 import com.haulmont.cuba.gui.components.calendar.ContainerCalendarEventProvider;
 import com.haulmont.cuba.gui.components.data.calendar.EntityCalendarEventProvider;
@@ -106,8 +105,8 @@ public class CalendarLoader extends AbstractComponentLoader<Calendar> {
         InstanceContainer container = screenData.getContainer(containerId);
 
         if (!(container instanceof CollectionContainer)) {
-            throw new GuiDevelopmentException("Not a CollectionContainer: " +
-                    containerId, context.getCurrentFrameId());
+            throw createGuiDevelopmentException("Not a CollectionContainer: " +
+                    containerId, context, false);
         }
 
         component.setEventProvider(new ContainerCalendarEventProvider<>(((CollectionContainer) container)));
@@ -117,8 +116,8 @@ public class CalendarLoader extends AbstractComponentLoader<Calendar> {
         final String datasource = element.attributeValue("datasource");
         CollectionDatasource ds = (CollectionDatasource) context.getDsContext().get(datasource);
         if (ds == null) {
-            throw new GuiDevelopmentException(String.format("Datasource '%s' is not defined", datasource),
-                    getContext().getFullFrameId(), "Component ID", component.getId());
+            throw createGuiDevelopmentException(String.format("Datasource '%s' is not defined", datasource),
+                    getContext(), true, "Component ID", component.getId());
         }
 
         component.setDatasource(ds);
@@ -173,9 +172,9 @@ public class CalendarLoader extends AbstractComponentLoader<Calendar> {
             try {
                 resultComponent.setStartDate(parseDateOrDateTime(startDate));
             } catch (ParseException e) {
-                throw new GuiDevelopmentException(
+                throw createGuiDevelopmentException(
                         "'startDate' parsing error for calendar: " +
-                                startDate, context.getFullFrameId(), "Calendar ID", resultComponent.getId());
+                                startDate, context, true, "Calendar ID", resultComponent.getId());
             }
         }
     }
@@ -186,9 +185,9 @@ public class CalendarLoader extends AbstractComponentLoader<Calendar> {
             try {
                 resultComponent.setEndDate(parseDateOrDateTime(endDate));
             } catch (ParseException e) {
-                throw new GuiDevelopmentException(
+                throw createGuiDevelopmentException(
                         "'endDate' parsing error for calendar: " +
-                                endDate, context.getFullFrameId(), "Calendar ID", resultComponent.getId());
+                                endDate, context, true, "Calendar ID", resultComponent.getId());
             }
         }
     }
@@ -211,8 +210,8 @@ public class CalendarLoader extends AbstractComponentLoader<Calendar> {
             } else if (timeFormat.equals(TIME_FORMAT_24H)) {
                 resultComponent.setTimeFormat(Calendar.TimeFormat.FORMAT_24H);
             } else {
-                throw new GuiDevelopmentException("'timeFormat' must be '12H' or '24H'",
-                        context.getFullFrameId(), "Calendar ID", resultComponent.getId());
+                throw createGuiDevelopmentException("'timeFormat' must be '12H' or '24H'",
+                        context, true, "Calendar ID", resultComponent.getId());
             }
         }
     }

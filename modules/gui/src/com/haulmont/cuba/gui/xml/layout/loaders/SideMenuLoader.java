@@ -16,7 +16,6 @@
 
 package com.haulmont.cuba.gui.xml.layout.loaders;
 
-import com.haulmont.cuba.gui.GuiDevelopmentException;
 import com.haulmont.cuba.gui.components.Button;
 import com.haulmont.cuba.gui.components.Component;
 import com.haulmont.cuba.gui.components.mainwindow.SideMenu;
@@ -73,8 +72,8 @@ public class SideMenuLoader extends AbstractComponentLoader<SideMenu> {
         if (StringUtils.isNotEmpty(sidePanelId)) {
             Component sidePanel = resultComponent.getFrame().getComponent(sidePanelId);
             if (sidePanel == null) {
-                throw new GuiDevelopmentException("Unable to find sidePanel component for SideMenu",
-                        context.getFullFrameId(), "sidePanel", sidePanelId);
+                throw createGuiDevelopmentException("Unable to find sidePanel component for SideMenu",
+                        context, true, "sidePanel", sidePanelId);
             }
             component.setSidePanel(sidePanel);
         }
@@ -85,8 +84,8 @@ public class SideMenuLoader extends AbstractComponentLoader<SideMenu> {
         if (StringUtils.isNotEmpty(toggleButtonId)) {
             Component toggleButton = resultComponent.getFrame().getComponent(toggleButtonId);
             if (!(toggleButton instanceof Button)) {
-                throw new GuiDevelopmentException("Unable to find sidePanelToggleButton for SideMenu",
-                        context.getFullFrameId(), "sidePanelToggleButton", toggleButtonId);
+                throw createGuiDevelopmentException("Unable to find sidePanelToggleButton for SideMenu",
+                        context, true, "sidePanelToggleButton", toggleButtonId);
             }
             component.setSidePanelToggleButton((Button) toggleButton);
         }

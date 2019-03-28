@@ -17,19 +17,15 @@
 package com.haulmont.cuba.gui.xml.layout.loaders;
 
 import com.google.common.base.Strings;
-import com.haulmont.cuba.gui.ComponentsHelper;
-import com.haulmont.cuba.gui.GuiDevelopmentException;
 import com.haulmont.cuba.gui.components.ButtonsPanel;
 import com.haulmont.cuba.gui.components.CaptionMode;
 import com.haulmont.cuba.gui.components.Tree;
-import com.haulmont.cuba.gui.components.Window;
 import com.haulmont.cuba.gui.components.data.tree.ContainerTreeItems;
 import com.haulmont.cuba.gui.data.HierarchicalDatasource;
 import com.haulmont.cuba.gui.model.CollectionContainer;
 import com.haulmont.cuba.gui.model.InstanceContainer;
 import com.haulmont.cuba.gui.model.ScreenData;
 import com.haulmont.cuba.gui.screen.FrameOwner;
-import com.haulmont.cuba.gui.screen.LookupScreen;
 import com.haulmont.cuba.gui.screen.UiControllerUtils;
 import com.haulmont.cuba.gui.xml.layout.ComponentLoader;
 import org.apache.commons.lang3.StringUtils;
@@ -98,7 +94,7 @@ public class TreeLoader extends ActionsHolderLoader<Tree> {
             if (container instanceof CollectionContainer) {
                 collectionContainer = (CollectionContainer) container;
             } else {
-                throw new GuiDevelopmentException("Not a CollectionContainer: " + containerId, context.getCurrentFrameId());
+                throw createGuiDevelopmentException("Not a CollectionContainer: " + containerId, context, false);
             }
             String hierarchyProperty = element.attributeValue("hierarchyProperty");
             if (hierarchyProperty == null && itemsElem != null) {
@@ -107,7 +103,7 @@ public class TreeLoader extends ActionsHolderLoader<Tree> {
             }
 
             if (Strings.isNullOrEmpty(hierarchyProperty)) {
-                throw new GuiDevelopmentException("Tree doesn't have 'hierarchyProperty' attribute of the 'treechildren' element", context.getCurrentFrameId(),
+                throw createGuiDevelopmentException("Tree doesn't have 'hierarchyProperty' attribute of the 'treechildren' element", context, false,
                         "Tree ID", element.attributeValue("id"));
             }
             resultComponent.setItems(new ContainerTreeItems(collectionContainer, hierarchyProperty));

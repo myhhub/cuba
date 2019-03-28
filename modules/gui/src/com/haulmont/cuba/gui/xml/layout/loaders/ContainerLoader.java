@@ -16,7 +16,6 @@
  */
 package com.haulmont.cuba.gui.xml.layout.loaders;
 
-import com.haulmont.cuba.gui.GuiDevelopmentException;
 import com.haulmont.cuba.gui.components.Component;
 import com.haulmont.cuba.gui.components.ComponentContainer;
 import com.haulmont.cuba.gui.components.ExpandingLayout;
@@ -93,9 +92,9 @@ public abstract class ContainerLoader<T extends Component> extends AbstractCompo
             if (!expand.contains(";")) {
                 Component componentToExpand = layout.getOwnComponent(expand);
                 if (componentToExpand == null) {
-                    throw new GuiDevelopmentException(
+                    throw createGuiDevelopmentException(
                             String.format("There is no component with id '%s' to expand", expand),
-                            context.getFullFrameId());
+                            context, true);
                 }
                 layout.expand(componentToExpand);
             } else {
@@ -110,9 +109,9 @@ public abstract class ContainerLoader<T extends Component> extends AbstractCompo
                     String width = find(parts, "width");
                     layout.expand(componentToExpand, height, width);
                 } else {
-                    throw new GuiDevelopmentException(
+                    throw createGuiDevelopmentException(
                             String.format("Illegal expand target '%s' for container", targetId),
-                            context.getFullFrameId(), "component", targetId);
+                            context, true, "component", targetId);
                 }
             }
         }

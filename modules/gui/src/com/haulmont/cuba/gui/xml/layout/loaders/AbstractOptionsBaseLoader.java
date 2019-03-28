@@ -77,7 +77,7 @@ public abstract class AbstractOptionsBaseLoader<T extends OptionsField> extends 
             ScreenData screenData = UiControllerUtils.getScreenData(frameOwner);
             InstanceContainer container = screenData.getContainer(containerId);
             if (!(container instanceof CollectionContainer)) {
-                throw new GuiDevelopmentException("Not a CollectionContainer: " + containerId, context.getCurrentFrameId());
+                throw createGuiDevelopmentException("Not a CollectionContainer: " + containerId, context, false);
             }
             component.setOptions(new ContainerOptions((CollectionContainer) container));
         }

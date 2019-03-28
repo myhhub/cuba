@@ -139,7 +139,7 @@ public abstract class AbstractDataGridLoader<T extends DataGrid> extends Actions
             if (container instanceof CollectionContainer) {
                 collectionContainer = (CollectionContainer) container;
             } else {
-                throw new GuiDevelopmentException("Not a CollectionContainer: " + containerId, context.getCurrentFrameId());
+                throw createGuiDevelopmentException("Not a CollectionContainer: " + containerId, context, false);
             }
             metaClass = collectionContainer.getEntityMetaClass();
             if (collectionContainer instanceof HasLoader) {
@@ -149,15 +149,15 @@ public abstract class AbstractDataGridLoader<T extends DataGrid> extends Actions
         } else {
             String datasourceId = element.attributeValue("datasource");
             if (StringUtils.isBlank(datasourceId)) {
-                throw new GuiDevelopmentException("DataGrid element doesn't have 'datasource' attribute",
-                        context.getCurrentFrameId(), "DataGrid ID", element.attributeValue("id"));
+                throw createGuiDevelopmentException("DataGrid element doesn't have 'datasource' attribute",
+                        context, false, "DataGrid ID", element.attributeValue("id"));
             }
             datasource = context.getDsContext().get(datasourceId);
             if (datasource == null) {
-                throw new GuiDevelopmentException("Can't find datasource by name: " + datasourceId, context.getCurrentFrameId());
+                throw createGuiDevelopmentException("Can't find datasource by name: " + datasourceId, context, false);
             }
             if (!(datasource instanceof CollectionDatasource)) {
-                throw new GuiDevelopmentException("Not a CollectionDatasource: " + datasource, context.getCurrentFrameId());
+                throw createGuiDevelopmentException("Not a CollectionDatasource: " + datasource, context, false);
             }
             metaClass = datasource.getMetaClass();
         }
@@ -375,8 +375,8 @@ public abstract class AbstractDataGridLoader<T extends DataGrid> extends Actions
         String includeAll = columnsElement.attributeValue("includeAll");
 
         if (StringUtils.isNotBlank(includeByView) && StringUtils.isNotBlank(includeAll)) {
-            throw new GuiDevelopmentException("'includeByView' and 'includeAll' attributes cannot be defined simultaneously",
-                    getContext().getFullFrameId());
+            throw createGuiDevelopmentException("'includeByView' and 'includeAll' attributes cannot be defined simultaneously",
+                    getContext(), true);
         }
 
         if (StringUtils.isNotBlank(includeByView)) {
@@ -406,8 +406,8 @@ public abstract class AbstractDataGridLoader<T extends DataGrid> extends Actions
             if (property != null) {
                 id = property;
             } else {
-                throw new GuiDevelopmentException("A column must have whether id or property specified",
-                        context.getCurrentFrameId(), "DataGrid ID", component.getId());
+                throw createGuiDevelopmentException("A column must have whether id or property specified",
+                        context, false, "DataGrid ID", component.getId());
             }
         }
 
@@ -529,8 +529,8 @@ public abstract class AbstractDataGridLoader<T extends DataGrid> extends Actions
                 // Only integer allowed in XML
                 return Integer.parseInt(value);
             } catch (NumberFormatException e) {
-                throw new GuiDevelopmentException("Property '" + propertyName + "' must contain only numeric value",
-                        context.getCurrentFrameId(), propertyName, element.attributeValue(propertyName));
+                throw createGuiDevelopmentException("Property '" + propertyName + "' must contain only numeric value",
+                        context, false, propertyName, element.attributeValue(propertyName));
             }
         }
         return null;

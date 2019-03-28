@@ -63,8 +63,8 @@ public class FragmentComponentLoader extends ContainerLoader<Fragment> {
         String screenId = element.attributeValue("screen");
         if (src == null
                 && screenId == null) {
-            throw new GuiDevelopmentException("Either 'src' or 'screen' must be specified for 'frame'",
-                    context.getFullFrameId(), "fragment", element.attributeValue("id"));
+            throw createGuiDevelopmentException("Either 'src' or 'screen' must be specified for 'frame'",
+                    context, true, "fragment", element.attributeValue("id"));
         }
 
         String fragmentId;
@@ -81,9 +81,9 @@ public class FragmentComponentLoader extends ContainerLoader<Fragment> {
             // load screen class only once
             windowInfo = getWindowConfig().getWindowInfo(screenId).resolve();
             if (windowInfo.getTemplate() == null) {
-                throw new GuiDevelopmentException(
+                throw createGuiDevelopmentException(
                         String.format("Screen %s doesn't have template path configured", screenId),
-                        context.getFullFrameId()
+                        context, true
                 );
             }
         } else {
@@ -304,15 +304,15 @@ public class FragmentComponentLoader extends ContainerLoader<Fragment> {
         for (Element property : propElements) {
             String name = property.attributeValue("name");
             if (name == null || name.isEmpty()) {
-                throw new GuiDevelopmentException("Screen fragment property cannot have empty name", context.getFullFrameId());
+                throw createGuiDevelopmentException("Screen fragment property cannot have empty name", context, true);
             }
 
             String value = property.attributeValue("value");
             String ref = property.attributeValue("ref");
 
             if (StringUtils.isNotEmpty(value) && StringUtils.isNotEmpty(ref)) {
-                throw new GuiDevelopmentException("Screen fragment property can have either a value or a reference. Property: " +
-                        name, context.getFullFrameId());
+                throw createGuiDevelopmentException("Screen fragment property can have either a value or a reference. Property: " +
+                        name, context, true);
             }
 
             if (StringUtils.isNotEmpty(value)) {
@@ -320,8 +320,8 @@ public class FragmentComponentLoader extends ContainerLoader<Fragment> {
             } else if (StringUtils.isNotEmpty(ref)) {
                 properties.add(new UiControllerProperty(name, ref, UiControllerProperty.Type.REFERENCE));
             } else {
-                throw new GuiDevelopmentException("No value or reference found for screen fragment property: " + name,
-                        context.getFullFrameId());
+                throw createGuiDevelopmentException("No value or reference found for screen fragment property: " + name,
+                        context, true);
             }
         }
 

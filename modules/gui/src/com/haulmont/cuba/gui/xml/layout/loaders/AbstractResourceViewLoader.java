@@ -16,7 +16,6 @@
 
 package com.haulmont.cuba.gui.xml.layout.loaders;
 
-import com.haulmont.cuba.gui.GuiDevelopmentException;
 import com.haulmont.cuba.gui.components.*;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Element;
@@ -69,7 +68,7 @@ public abstract class AbstractResourceViewLoader<T extends ResourceView> extends
 
         String path = relativePath.attributeValue("path");
         if (StringUtils.isEmpty(path)) {
-            throw new GuiDevelopmentException("No path provided for the RelativePathResource", context.getFullFrameId());
+            throw createGuiDevelopmentException("No path provided for the RelativePathResource", context, true);
         }
 
         RelativePathResource resource = resultComponent.createResource(RelativePathResource.class);
@@ -90,7 +89,7 @@ public abstract class AbstractResourceViewLoader<T extends ResourceView> extends
 
         String url = urlResource.attributeValue("url");
         if (StringUtils.isEmpty(url)) {
-            throw new GuiDevelopmentException("No url provided for the UrlResource", context.getFullFrameId());
+            throw createGuiDevelopmentException("No url provided for the UrlResource", context, true);
         }
 
         UrlResource resource = resultComponent.createResource(UrlResource.class);
@@ -102,7 +101,7 @@ public abstract class AbstractResourceViewLoader<T extends ResourceView> extends
             resultComponent.setSource(resource);
         } catch (MalformedURLException e) {
             String msg = String.format("An error occurred while creating UrlResource with the given url: %s", url);
-            throw new GuiDevelopmentException(msg, context.getFullFrameId());
+            throw createGuiDevelopmentException(msg, context, true);
         }
     }
 
@@ -113,7 +112,7 @@ public abstract class AbstractResourceViewLoader<T extends ResourceView> extends
 
         String classpathPath = classpathResource.attributeValue("path");
         if (StringUtils.isEmpty(classpathPath)) {
-            throw new GuiDevelopmentException("No path provided for the ClasspathResource", context.getFullFrameId());
+            throw createGuiDevelopmentException("No path provided for the ClasspathResource", context, true);
         }
 
         ClasspathResource resource = resultComponent.createResource(ClasspathResource.class);
@@ -135,7 +134,7 @@ public abstract class AbstractResourceViewLoader<T extends ResourceView> extends
 
         String themePath = themeResource.attributeValue("path");
         if (StringUtils.isEmpty(themePath)) {
-            throw new GuiDevelopmentException("No path provided for the ThemeResource", context.getFullFrameId());
+            throw createGuiDevelopmentException("No path provided for the ThemeResource", context, true);
         }
 
         resultComponent.setSource(ThemeResource.class).setPath(themePath);
@@ -150,13 +149,13 @@ public abstract class AbstractResourceViewLoader<T extends ResourceView> extends
 
         String filePath = fileResource.attributeValue("path");
         if (StringUtils.isEmpty(filePath)) {
-            throw new GuiDevelopmentException("No path provided for the FileResource", context.getFullFrameId());
+            throw createGuiDevelopmentException("No path provided for the FileResource", context, true);
         }
 
         File file = new File(filePath);
         if (!file.exists()) {
             String msg = String.format("Can't load FileResource. File with given path does not exists: %s", filePath);
-            throw new GuiDevelopmentException(msg, context.getFullFrameId());
+            throw createGuiDevelopmentException(msg, context, true);
         }
 
         FileResource resource = resultComponent.createResource(FileResource.class);

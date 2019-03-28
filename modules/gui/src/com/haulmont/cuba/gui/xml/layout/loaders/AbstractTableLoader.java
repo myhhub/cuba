@@ -29,7 +29,6 @@ import com.haulmont.cuba.core.app.dynamicattributes.PropertyType;
 import com.haulmont.cuba.core.entity.CategoryAttribute;
 import com.haulmont.cuba.core.entity.LocaleHelper;
 import com.haulmont.cuba.core.global.*;
-import com.haulmont.cuba.gui.GuiDevelopmentException;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.components.data.table.ContainerTableItems;
 import com.haulmont.cuba.gui.data.CollectionDatasource;
@@ -144,7 +143,7 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
             if (container instanceof CollectionContainer) {
                 collectionContainer = (CollectionContainer) container;
             } else {
-                throw new GuiDevelopmentException("Not a CollectionContainer: " + containerId, context.getCurrentFrameId());
+                throw createGuiDevelopmentException("Not a CollectionContainer: " + containerId, context, false);
             }
             metaClass = collectionContainer.getEntityMetaClass();
             if (collectionContainer instanceof HasLoader) {
@@ -154,23 +153,23 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
         } else if (rowsElement != null) {
             String datasourceId = rowsElement.attributeValue("datasource");
             if (StringUtils.isBlank(datasourceId)) {
-                throw new GuiDevelopmentException("Table 'rows' element doesn't have 'datasource' attribute",
-                        context.getCurrentFrameId(), "Table ID", element.attributeValue("id"));
+                throw createGuiDevelopmentException("Table 'rows' element doesn't have 'datasource' attribute",
+                        context, false, "Table ID", element.attributeValue("id"));
             }
 
             datasource = context.getDsContext().get(datasourceId);
             if (datasource == null) {
-                throw new GuiDevelopmentException("Can't find datasource by name: " + datasourceId, context.getCurrentFrameId());
+                throw createGuiDevelopmentException("Can't find datasource by name: " + datasourceId, context, false);
             }
 
             if (!(datasource instanceof CollectionDatasource)) {
-                throw new GuiDevelopmentException("Not a CollectionDatasource: " + datasourceId, context.getCurrentFrameId());
+                throw createGuiDevelopmentException("Not a CollectionDatasource: " + datasourceId, context, false);
             }
 
             metaClass = datasource.getMetaClass();
         } else {
-            throw new GuiDevelopmentException("Table doesn't have data binding",
-                    context.getCurrentFrameId(), "Table ID", element.attributeValue("id"));
+            throw createGuiDevelopmentException("Table doesn't have data binding",
+                    context, false, "Table ID", element.attributeValue("id"));
         }
 
         List<Table.Column> availableColumns;
@@ -371,8 +370,8 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
         String includeAll = columnsElement.attributeValue("includeAll");
 
         if (StringUtils.isNotBlank(includeByView) && StringUtils.isNotBlank(includeAll)) {
-            throw new GuiDevelopmentException("'includeByView' and 'includeAll' attributes cannot be defined simultaneously",
-                    getContext().getFullFrameId());
+            throw createGuiDevelopmentException("'includeByView' and 'includeAll' attributes cannot be defined simultaneously",
+                    getContext(), true);
         }
 
         if (StringUtils.isNotBlank(includeByView)) {
@@ -471,8 +470,8 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
             }
         } else if (column.isEditable()) {
             if (!(column.getId() instanceof MetaPropertyPath)) {
-                throw new GuiDevelopmentException(String.format("Column '%s' has editable=true, but there is no " +
-                        "property of an entity with this id", column.getId()), context.getCurrentFrameId());
+                throw createGuiDevelopmentException(String.format("Column '%s' has editable=true, but there is no " +
+                        "property of an entity with this id", column.getId()), context, false);
             }
 
             MetaPropertyPath propertyPath = (MetaPropertyPath) column.getId();
@@ -553,8 +552,8 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
             try {
                 column.setWidth(Integer.parseInt(width));
             } catch (NumberFormatException e) {
-                throw new GuiDevelopmentException("Property 'width' must contain only numeric value",
-                        context.getCurrentFrameId(), "width", element.attributeValue("width"));
+                throw createGuiDevelopmentException("Property 'width' must contain only numeric value",
+                        context, false, "width", element.attributeValue("width"));
             }
         }
         String align = element.attributeValue("align");
@@ -618,7 +617,7 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
             if (StringUtils.isNotEmpty(strategyClass)) {
                 Class<?> aggregationClass = getScripting().loadClass(strategyClass);
                 if (aggregationClass == null) {
-                    throw new GuiDevelopmentException(String.format("Class %s is not found", strategyClass), context.getFullFrameId());
+                    throw createGuiDevelopmentException(String.format("Class %s is not found", strategyClass), context, true);
                 }
 
                 try {
@@ -631,7 +630,7 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
             }
 
             if (aggregationType == null && strategyClass == null) {
-                throw new GuiDevelopmentException("Incorrect aggregation - type or strategyClass is required", context.getFullFrameId());
+                throw createGuiDevelopmentException("Incorrect aggregation - type or strategyClass is required", context, true);
             }
         }
     }

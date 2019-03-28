@@ -16,7 +16,6 @@
  */
 package com.haulmont.cuba.gui.xml.layout.loaders;
 
-import com.haulmont.cuba.gui.GuiDevelopmentException;
 import com.haulmont.cuba.gui.components.DateField;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Element;
@@ -93,9 +92,9 @@ public class DateFieldLoader extends AbstractFieldLoader<DateField> {
             try {
                 resultComponent.setRangeStart(parseDateOrDateTime(rangeStart));
             } catch (ParseException e) {
-                throw new GuiDevelopmentException(
+                throw createGuiDevelopmentException(
                         "'rangeStart' parsing error for date picker: " +
-                                rangeStart, context.getFullFrameId(), "DatePicker ID", resultComponent.getId());
+                                rangeStart, context, true, "DatePicker ID", resultComponent.getId());
             }
         }
     }
@@ -106,9 +105,9 @@ public class DateFieldLoader extends AbstractFieldLoader<DateField> {
             try {
                 resultComponent.setRangeEnd(parseDateOrDateTime(rangeEnd));
             } catch (ParseException e) {
-                throw new GuiDevelopmentException(
+                throw createGuiDevelopmentException(
                         "'rangeEnd' parsing error for date picker: " +
-                                rangeEnd, context.getFullFrameId(), "DatePicker ID", resultComponent.getId());
+                                rangeEnd, context, true, "DatePicker ID", resultComponent.getId());
             }
         }
     }

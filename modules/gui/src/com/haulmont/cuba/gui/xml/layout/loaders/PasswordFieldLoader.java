@@ -17,7 +17,6 @@
 
 package com.haulmont.cuba.gui.xml.layout.loaders;
 
-import com.haulmont.cuba.gui.GuiDevelopmentException;
 import com.haulmont.cuba.gui.components.CapsLockIndicator;
 import com.haulmont.cuba.gui.components.Component;
 import com.haulmont.cuba.gui.components.PasswordField;
@@ -50,8 +49,8 @@ public class PasswordFieldLoader extends AbstractTextFieldLoader<PasswordField> 
             if (component.getCapsLockIndicator() == null) {
                 Component bindComponent = component.getFrame().getComponent(capsLockIndicator);
                 if (!(bindComponent instanceof CapsLockIndicator)) {
-                    throw new GuiDevelopmentException("Specify 'capsLockIndicator' attribute: id of " +
-                            "CapsLockIndicator component", context.getFullFrameId(), "componentId", component
+                    throw createGuiDevelopmentException("Specify 'capsLockIndicator' attribute: id of " +
+                            "CapsLockIndicator component", context, true, "componentId", component
                             .getId());
                 }
                 component.setCapsLockIndicator((CapsLockIndicator) bindComponent);
