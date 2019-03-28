@@ -239,7 +239,7 @@ public class WebUiComponents implements UiComponents {
 
         CompositionTemplate template = componentClass.getAnnotation(CompositionTemplate.class);
         if (template != null) {
-            Component root = processCompositionTemplate(template.value());
+            Component root = processCompositionTemplate(componentClass, template.value());
             CompositeComponent compositeComponent = (CompositeComponent) instance;
             WebComponentsHelper.setCompositeComponentRoot(compositeComponent, root);
 
@@ -249,12 +249,12 @@ public class WebUiComponents implements UiComponents {
         }
     }
 
-    protected Component processCompositionTemplate(String template) {
+    protected Component processCompositionTemplate(Class<? extends Component> componentClass, String template) {
         ComponentLoader.Context context = new CompositeComponentLoaderContext();
+        context.setComponentClass(componentClass);
+        context.setComponentTemplate(template);
         // TODO: gg, set some useful values
-        /*context.setFullFrameId(windowInfo.getId());
-        context.setCurrentFrameId(windowInfo.getId());
-        context.setFrame(window);*/
+//        context.setFrame(window);
 
         CompositeComponentLayoutLoader layoutLoader =
                 beanLocator.getPrototype(CompositeComponentLayoutLoader.NAME, context);

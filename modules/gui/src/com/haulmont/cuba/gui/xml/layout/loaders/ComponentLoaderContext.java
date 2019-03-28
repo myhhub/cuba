@@ -189,4 +189,24 @@ public class ComponentLoaderContext implements ComponentLoader.Context {
     public Map<String, String> getAliasesMap() {
         return aliasesMap;
     }
+
+    @Override
+    public Class<?> getComponentClass() {
+        return null;
+    }
+
+    @Override
+    public void setComponentClass(Class<?> componentClass) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getComponentTemplate() {
+        return null;
+    }
+
+    @Override
+    public void setComponentTemplate(String template) {
+        throw new UnsupportedOperationException();
+    }
 }

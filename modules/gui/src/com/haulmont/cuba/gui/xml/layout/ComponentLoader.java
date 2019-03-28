@@ -55,11 +55,19 @@ public interface ComponentLoader<T extends Component> {
         Frame getFrame();
         void setFrame(Frame frame);
 
+        // TODO: gg, nullable
         String getFullFrameId();
         void setFullFrameId(String frameId);
 
         String getCurrentFrameId();
         void setCurrentFrameId(String currentFrameId);
+
+        Class<?> getComponentClass();
+        void setComponentClass(Class<?> componentClass);
+
+        // TODO: gg, remove?
+        String getComponentTemplate();
+        void setComponentTemplate(String template);
 
         Context getParent();
         void setParent(Context parent);

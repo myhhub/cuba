@@ -24,10 +24,16 @@ import java.util.Map;
 public class GuiDevelopmentException extends DevelopmentException {
 
     protected String frameId;
+    protected Class<?> componentClass;
 
     public GuiDevelopmentException(String message, String frameId) {
         super(message);
         this.frameId = frameId;
+    }
+
+    public GuiDevelopmentException(String message, Class<?> componentClass) {
+        super(message);
+        this.componentClass = componentClass;
     }
 
     public GuiDevelopmentException(String message, String frameId, String paramKey, Object paramValue) {
@@ -35,17 +41,34 @@ public class GuiDevelopmentException extends DevelopmentException {
         this.frameId = frameId;
     }
 
+    public GuiDevelopmentException(String message, Class<?> componentClass, String paramKey, Object paramValue) {
+        super(message, paramKey, paramValue);
+        this.componentClass = componentClass;
+    }
+
     public GuiDevelopmentException(String message, String frameId, Map<String, Object> params) {
         super(message, params);
         this.frameId = frameId;
+    }
+
+    public GuiDevelopmentException(String message, Class<?> componentClass, Map<String, Object> params) {
+        super(message, params);
+        this.componentClass = componentClass;
     }
 
     public String getFrameId() {
         return frameId;
     }
 
+    public Class<?> getComponentClass() {
+        return componentClass;
+    }
+
     @Override
     public String toString() {
-        return super.toString() + (frameId != null ? ", frameId=" + frameId : "");
+        return super.toString() +
+                (frameId != null ? ", frameId=" + frameId
+                : componentClass != null ? ", componentClass=" + componentClass
+                : "");
     }
 }

@@ -19,6 +19,7 @@ package com.haulmont.cuba.gui.xml.layout.loaders;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.haulmont.bali.util.ParamsMap;
 import com.haulmont.bali.util.ReflectionHelper;
 import com.haulmont.chile.core.model.MetaClass;
 import com.haulmont.chile.core.model.MetaProperty;
@@ -61,6 +62,7 @@ import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
@@ -444,8 +446,8 @@ public abstract class AbstractComponentLoader<T extends Component> implements Co
         if (margin.contains(";") || margin.contains(",")) {
             final String[] margins = margin.split("[;,]");
             if (margins.length != 4) {
-                throw new GuiDevelopmentException(
-                        "Margin attribute must contain 1 or 4 boolean values separated by ',' or ';", context.getFullFrameId());
+                throw createGuiDevelopmentException(
+                        "Margin attribute must contain 1 or 4 boolean values separated by ',' or ';", context, true);
             }
 
             return new MarginInfo(
@@ -521,7 +523,7 @@ public abstract class AbstractComponentLoader<T extends Component> implements Co
         } else {
             Class aClass = getScripting().loadClass(className);
             if (aClass == null)
-                throw new GuiDevelopmentException(String.format("Class %s is not found", className), context.getFullFrameId());
+                throw createGuiDevelopmentException(String.format("Class %s is not found", className), context, true);
             if (!StringUtils.isBlank(getMessagesPack()))
                 try {
                     validator = (Field.Validator) ReflectionHelper.newInstance(aClass, validatorElement, getMessagesPack());
@@ -540,9 +542,8 @@ public abstract class AbstractComponentLoader<T extends Component> implements Co
                 }
             }
             if (validator == null) {
-                throw new GuiDevelopmentException(
-                        String.format("Validator class %s has no supported constructors", aClass),
-                        context.getFullFrameId());
+                throw createGuiDevelopmentException(
+                        String.format("Validator class %s has no supported constructors", aClass), context, true);
             }
         }
         return validator;
@@ -610,9 +611,9 @@ public abstract class AbstractComponentLoader<T extends Component> implements Co
                 if (component.getParent() != null)
                     component = component.getParent();
                 else
-                    throw new GuiDevelopmentException("No action ID provided", context.getFullFrameId());
+                    throw createGuiDevelopmentException("No action ID provided", context, true);
             }
-            throw new GuiDevelopmentException("No action ID provided", context.getFullFrameId(),
+            throw createGuiDevelopmentException("No action ID provided", context, true,
                     "Component ID", component.attributeValue("id"));
         }
         return id;
@@ -740,7 +741,7 @@ public abstract class AbstractComponentLoader<T extends Component> implements Co
             String[] splittedShortcut = shortcut.split("#");
             if (splittedShortcut.length != 2) {
                 String message = "An error occurred while loading shortcut: incorrect format of shortcut.";
-                throw new GuiDevelopmentException(message, context.getFullFrameId());
+                throw createGuiDevelopmentException(message, context, true);
             }
 
             String fqnConfigName = splittedShortcut[0].substring(2);
@@ -759,16 +760,16 @@ public abstract class AbstractComponentLoader<T extends Component> implements Co
                 } catch (NoSuchMethodException e) {
                     String message = String.format("An error occurred while loading shortcut: " +
                             "can't find method \"%s\" in \"%s\"", methodName, fqnConfigName);
-                    throw new GuiDevelopmentException(message, context.getFullFrameId());
+                    throw createGuiDevelopmentException(message, context, true);
                 } catch (IllegalAccessException | InvocationTargetException e) {
                     String message = String.format("An error occurred while loading shortcut: " +
                             "can't invoke method \"%s\" in \"%s\"", methodName, fqnConfigName);
-                    throw new GuiDevelopmentException(message, context.getFullFrameId());
+                    throw createGuiDevelopmentException(message, context, true);
                 }
             } else {
                 String message = String.format("An error occurred while loading shortcut: " +
                         "can't find config interface \"%s\"", fqnConfigName);
-                throw new GuiDevelopmentException(message, context.getFullFrameId());
+                throw createGuiDevelopmentException(message, context, true);
             }
         }
         return null;
@@ -783,7 +784,7 @@ public abstract class AbstractComponentLoader<T extends Component> implements Co
             } else {
                 String message = String.format("An error occurred while loading shortcut. " +
                         "Can't find shortcut for alias \"%s\"", alias);
-                throw new GuiDevelopmentException(message, context.getFullFrameId());
+                throw createGuiDevelopmentException(message, context, true);
             }
         }
         return null;
@@ -797,7 +798,7 @@ public abstract class AbstractComponentLoader<T extends Component> implements Co
                 return shortcutValue;
             } else {
                 String message = String.format("Action shortcut property \"%s\" doesn't exist", shortcutPropertyKey);
-                throw new GuiDevelopmentException(message, context.getFullFrameId());
+                throw createGuiDevelopmentException(message, context, true);
             }
         }
         return null;
@@ -848,10 +849,9 @@ public abstract class AbstractComponentLoader<T extends Component> implements Co
                 try {
                     openType = WindowManager.OpenType.valueOf(openTypeString);
                 } catch (IllegalArgumentException e) {
-                    throw new GuiDevelopmentException(
+                    throw createGuiDevelopmentException(
                             String.format("Unknown open type: '%s' for action: '%s'", openTypeString, actionId),
-                            context.getFullFrameId()
-                    );
+                            context, true);
                 }
 
                 if (action instanceof PickerField.LookupAction) {
@@ -876,7 +876,7 @@ public abstract class AbstractComponentLoader<T extends Component> implements Co
 
             Class<?> aClass = getScripting().loadClass(className);
             if (aClass == null) {
-                throw new GuiDevelopmentException(String.format("Class %s is not found", className), context.getFullFrameId());
+                throw createGuiDevelopmentException(String.format("Class %s is not found", className), context, true);
             }
 
             try {
@@ -885,18 +885,18 @@ public abstract class AbstractComponentLoader<T extends Component> implements Co
                     //noinspection unchecked
                     return (Function<?, String>) constructor.newInstance(formatterElement);
                 } catch (Throwable e) {
-                    throw new GuiDevelopmentException(
+                    throw createGuiDevelopmentException(
                             String.format("Unable to instantiate class %s: %s", className, e.toString()),
-                            context.getFullFrameId());
+                            context, true);
                 }
             } catch (NoSuchMethodException e) {
                 try {
                     //noinspection unchecked
                     return (Function<?, String>) aClass.getDeclaredConstructor().newInstance();
                 } catch (Exception e1) {
-                    throw new GuiDevelopmentException(
+                    throw createGuiDevelopmentException(
                             String.format("Unable to instantiate class %s: %s", className, e1.toString()),
-                            context.getFullFrameId());
+                            context, true);
                 }
             }
         } else {
@@ -915,15 +915,15 @@ public abstract class AbstractComponentLoader<T extends Component> implements Co
         } else if ("vertical".equalsIgnoreCase(orientation)) {
             component.setOrientation(HasOrientation.Orientation.VERTICAL);
         } else {
-            throw new GuiDevelopmentException("Invalid orientation value: " + orientation,
-                    context.getFullFrameId(), "Component ID", ((Component) component).getId());
+            throw createGuiDevelopmentException("Invalid orientation value: " + orientation, context,
+                    true, "Component ID", ((Component) component).getId());
         }
     }
 
     protected ComponentLoader getLoader(Element element, String name) {
         Class<? extends ComponentLoader> loaderClass = layoutLoaderConfig.getLoader(name);
         if (loaderClass == null) {
-            throw new GuiDevelopmentException("Unknown component: " + name, context.getFullFrameId());
+            throw createGuiDevelopmentException("Unknown component: " + name, context, true);
         }
 
         return getLoader(element, loaderClass);
@@ -935,16 +935,18 @@ public abstract class AbstractComponentLoader<T extends Component> implements Co
         try {
             constructor = loaderClass.getConstructor();
         } catch (NoSuchMethodException e) {
-            throw new GuiDevelopmentException(
+            throw createGuiDevelopmentException(
                     String.format("Unable to find constructor for loader: %s %s", loaderClass, e),
-                    context.getFullFrameId());
+                    context, true);
         }
 
         ComponentLoader loader;
         try {
             loader = constructor.newInstance();
         } catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
-            throw new RuntimeException("Loader instantiate error in: " + context.getFullFrameId(), e);
+            throw new RuntimeException("Loader instantiate error in: " +
+                    (context.getComponentTemplate() != null
+                            ? context.getComponentTemplate() : context.getFullFrameId()), e);
         }
 
         loader.setBeanLocator(beanLocator);
@@ -993,9 +995,9 @@ public abstract class AbstractComponentLoader<T extends Component> implements Co
 
         if (!Strings.isNullOrEmpty(containerId)) {
             if (property == null) {
-                throw new GuiDevelopmentException(
+                throw createGuiDevelopmentException(
                         String.format("Can't set container '%s' for component '%s' because 'property' " +
-                                "attribute is not defined", containerId, component.getId()), context.getFullFrameId());
+                                "attribute is not defined", containerId, component.getId()), context, true);
             }
 
             FrameOwner frameOwner = context.getFrame().getFrameOwner();
@@ -1017,5 +1019,25 @@ public abstract class AbstractComponentLoader<T extends Component> implements Co
             parent = parent.getParent();
         }
         return null;
+    }
+
+    protected GuiDevelopmentException createGuiDevelopmentException(String message, ComponentLoader.Context context,
+                                                                    boolean fullId) {
+        return createGuiDevelopmentException(message, context, fullId, Collections.emptyMap());
+    }
+
+    protected GuiDevelopmentException createGuiDevelopmentException(String message, ComponentLoader.Context context,
+                                                                   boolean fullId, String paramKey, Object paramValue) {
+        return createGuiDevelopmentException(message, context, fullId, ParamsMap.of(paramKey, paramValue));
+    }
+
+    protected GuiDevelopmentException createGuiDevelopmentException(String message, ComponentLoader.Context context,
+                                                                    boolean fullId, Map<String, Object> params) {
+        if (context.getComponentClass() != null) {
+            return new GuiDevelopmentException(message, context.getComponentClass(), params);
+        } else {
+            return new GuiDevelopmentException(message,
+                    fullId ? context.getFullFrameId() : context.getCurrentFrameId(), params);
+        }
     }
 }

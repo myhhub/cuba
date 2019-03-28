@@ -34,6 +34,7 @@ import com.haulmont.cuba.web.App;
 import com.haulmont.cuba.web.AppUI;
 import com.haulmont.cuba.web.Connection;
 import com.haulmont.cuba.web.controllers.ControllerUtils;
+import com.haulmont.cuba.web.gui.components.CompositionTemplate;
 import com.haulmont.cuba.web.widgets.CubaButton;
 import com.haulmont.cuba.web.widgets.CubaCopyButtonExtension;
 import com.haulmont.cuba.web.widgets.CubaWindow;
@@ -272,7 +273,14 @@ public class ExceptionDialog extends CubaWindow {
                 Map<String, Object> params = new LinkedHashMap<>();
                 if (rootCause instanceof GuiDevelopmentException) {
                     GuiDevelopmentException guiDevException = (GuiDevelopmentException) rootCause;
-                    if (guiDevException.getFrameId() != null) {
+                    Class<?> componentClass = guiDevException.getComponentClass();
+                    if (componentClass != null) {
+                        params.put("Component Class", componentClass);
+                        CompositionTemplate template = componentClass.getAnnotation(CompositionTemplate.class);
+                        if (template != null) {
+                            params.put("XML template", template.value());
+                        }
+                    } else if (guiDevException.getFrameId() != null) {
                         params.put("Frame ID", guiDevException.getFrameId());
                         try {
                             params.put("XML descriptor",

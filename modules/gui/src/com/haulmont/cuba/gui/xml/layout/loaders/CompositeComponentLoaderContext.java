@@ -26,6 +26,11 @@ import java.util.Map;
 
 public class CompositeComponentLoaderContext implements ComponentLoader.Context {
 
+    protected Class<?> componentClass;
+    protected String template;
+
+    protected ComponentLoader.Context parent;
+
     @Override
     public ScreenOptions getOptions() {
         return null;
@@ -98,7 +103,7 @@ public class CompositeComponentLoaderContext implements ComponentLoader.Context 
 
     @Override
     public void setFullFrameId(String frameId) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -108,16 +113,36 @@ public class CompositeComponentLoaderContext implements ComponentLoader.Context 
 
     @Override
     public void setCurrentFrameId(String currentFrameId) {
+        throw new UnsupportedOperationException();
+    }
 
+    @Override
+    public Class<?> getComponentClass() {
+        return componentClass;
+    }
+
+    @Override
+    public void setComponentClass(Class<?> componentClass) {
+        this.componentClass = componentClass;
+    }
+
+    @Override
+    public String getComponentTemplate() {
+        return template;
+    }
+
+    @Override
+    public void setComponentTemplate(String template) {
+        this.template = template;
     }
 
     @Override
     public ComponentLoader.Context getParent() {
-        return null;
+        return parent;
     }
 
     @Override
     public void setParent(ComponentLoader.Context parent) {
-
+        this.parent = parent;
     }
 }
